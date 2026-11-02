@@ -1,0 +1,66 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isValidTimestamp(field) {
+      return field is timestamp;
+    }
+
+    function isValidProjectData() {
+      let data = request.resource.data;
+      return data.name is string && data.name.size() > 0 && data.name.size() <= 100
+        && (data.description == null || data.description is string)
+        && (data.icon == null || data.icon is string)
+        && (data.parentId == null || data.parentId is string)
+        && (data.tags == null || data.tags is list);
+    }
+
+    function isValidResponseData() {
+      let data = request.resource.data;
+      return data.title is string && data.title.size() > 0 && data.title.size() <= 200
+        && data.content is string && data.content.size() > 0
+        && (data.modelName == null || data.modelName is string)
+        && (data.tags == null || data.tags is list)
+        && (data.isPinned == null || data.isPinned is bool)
+        && (data.metadata == null || data.metadata is map);
+    }
+
+    // 1. User Profiles & Preferences
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
+
+      // 2. Projects & Nested Directories
+      match /projects/{projectId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidProjectData();
+        allow update: if isOwner(userId) && isValidProjectData();
+        allow delete: if isOwner(userId);
+
+        // 3. AI Responses & Knowledge Artifacts Subcollection
+        match /responses/{responseId} {
+          allow read: if isOwner(userId);
+          allow create: if isOwner(userId) && isValidResponseData();
+          allow update: if isOwner(userId) && isValidResponseData();
+          allow delete: if isOwner(userId);
+        }
+      }
+    }
+
+    // 4. Collection Group Query support for Global Search
+    // Allows querying across all responses subcollections scoped strictly to the authenticated user
+    match /{path=**}/responses/{responseId} {
+      allow read: if isAuthenticated() &&
+        resource.data.projectId != null &&
+        request.auth.uid in path;
+    }
+  }
+}
