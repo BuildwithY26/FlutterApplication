@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'firebase_options.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/presentation/auth_providers.dart';
 import 'features/dashboard/presentation/dashboard_screen.dart';
@@ -9,15 +11,32 @@ import 'features/dashboard/presentation/dashboard_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Safely initialize Firebase if configuration exists
+  // Initialize Firebase when keys are provided
   try {
-    await Firebase.initializeApp();
-    
-    // Enable offline persistence with unlimited cache
-    FirebaseFirestore.instance.settings = const Settings(
-      persistenceEnabled: true,
-      cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
-    );
+    if (DefaultFirebaseOptions.web.apiKey != 'YOUR_API_KEY') {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+
+      // Enable offline persistence with unlimited cache
+      FirebaseFirestore.instance.settings = const Settings(
+        persistenceEnabled: true,
+        cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
+      );
+
+      // Sign in anonymously for secure Firestore session
+      try {
+        if (FirebaseAuth.instance.currentUser == null) {
+          await FirebaseAuth.instance.signInAnonymously();
+        }
+      } catch (authErr) {
+        debugPrint('Anonymous auth notice: $authErr');
+      }
+
+      debugPrint('Firebase connected with offline persistence enabled.');
+    } else {
+      debugPrint('Running with in-memory persistence. To connect Firebase, update lib/firebase_options.dart');
+    }
   } catch (e) {
     debugPrint('Firebase initialization notice: $e (Running in local-ready mode)');
   }
