@@ -1,17 +1,25 @@
-# ai_knowledge_base
+# AI KNOWLEDGE BASE
+A modern, cross-platform Flutter application designed to help you organize, store, and manage your AI-generated responses efficiently within custom directories and folders.
 
-A new Flutter project.
+- Organized Storage: Group and categorize your saved AI responses into dedicated directories and folders.
 
-## Getting Started
+- Cross-Platform: Built with Flutter to run seamlessly across mobile, desktop, and web platforms.
 
-This project is a starting point for a Flutter application.
+- Clean Interface: A distraction-free dashboard built for quick retrieval and management of your prompt history.
 
-A few resources to get you started if this is your first Flutter project:
+# Packages
+- Flutter SDK
+- Dart SDK
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Check the pubspec.yaml file in the repository for the full list of packages used in state management, local/cloud storage, and UI design.
+# Clone
+- Clone the repo: git clone https://github.com/BuildwithY26/FlutterApplication.git cd FlutterApplication
+- Install dependencies: flutter pub get
+- Run application: flutter run
+  
+# Contributing
+- Fork
+- Create your Feature branch
+- Commit changes
+- Push to the branch
+- Open a Pull Request
